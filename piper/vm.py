@@ -12,13 +12,18 @@ def piper_fn__out(input):
     print(input, end="")
 
 
+def piper_fn__in():
+    return sys.stdin.read()
+
+
 # endregion
 
 
 GLOBAL_VARS = {"backslash": "\\"}
 FUNCTIONS = {
-    "out": lambda input: print(input, end=""),
-    "in": lambda: input(),
+    "out": piper_fn__out,
+    "enter": lambda: input(),
+    "in": piper_fn__in,
     "reverse": lambda input: input[::-1],
     "lower": lambda input: input.lower(),
     "upper": lambda input: input.upper(),
@@ -47,7 +52,14 @@ def call_fn(fn_name, input=None):
 
 def unwrap_str(str_in: str) -> str:
     str_in = str_in.replace("\\\\", "${backslash}")
-    str_in = str_in.replace("\\n", "\n")
+
+    replacements = (
+        ("\\n", "\n"),
+        ("\\r", "\r"),
+    )
+
+    for to_be_repl, replacement in replacements:
+        str_in = str_in.replace(to_be_repl, replacement)
 
     # region Paste strings
     while (matches := re.findall(r"\$\{?[a-zA-Z_]\w*\}?", str_in)) != []:
@@ -64,7 +76,7 @@ def unwrap_str(str_in: str) -> str:
     return str_in
 
 
-def exec_ast(ast):
+def exec_ast(ast: List[List[Tuple[str, Any]]]):
     for pipeline in ast:
         stored_result = None
 
@@ -77,6 +89,8 @@ def exec_ast(ast):
                 if stored_result is None:  # Get variable
                     if cmd_val not in GLOBAL_VARS:
                         raise VarNotSetError(f"Variable not set: {cmd_val}")
+
+                    stored_result = GLOBAL_VARS[cmd_val]
                 else:  # Set variable
                     GLOBAL_VARS[cmd_val] = stored_result
             elif cmd_type.endswith("-literal"):

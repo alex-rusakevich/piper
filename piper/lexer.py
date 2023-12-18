@@ -1,4 +1,5 @@
 import re
+from typing import Any, List, Tuple
 
 from piper.exception import PiperSyntaxError
 
@@ -12,7 +13,7 @@ LEX_TYPES = {
 }
 
 
-def lex(command_str: str) -> list:
+def lex(command_str: str) -> List[Tuple[str, Any]]:
     command = command_str
     lex_sequence = []
     moving_pointer = 0

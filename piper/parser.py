@@ -1,8 +1,11 @@
-def parse(lex_sequence: list) -> list:
-    ast = []
+from typing import Any, List, Tuple
+
+
+def parse(lex_sequence: List[Tuple[str, Any]]) -> List[List[Tuple[str, Any]]]:
+    ast: List[List[Tuple[str, Any]]] = []
 
     while len(lex_sequence) > 0:
-        pipeline = []
+        pipeline: List[Tuple[str, Any]] = []
         lex_count = 0
 
         for lex in lex_sequence:
