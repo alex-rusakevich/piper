@@ -2,6 +2,7 @@ import re
 from typing import Any, List, Tuple
 
 from piper.exception import PiperSyntaxError
+from piper.utils import get_line_by_char_pos
 
 LEX_TYPES = {
     "string-literal": r"\".*\"",
@@ -19,10 +20,12 @@ def lex(command_str: str) -> List[Tuple[str, Any]]:
     moving_pointer = 0
 
     while command != "":
-        lex = ()
+        matched_smth = False
 
         for k, v in LEX_TYPES.items():
             if match_obj := re.match(v, command):
+                matched_smth = True
+
                 command = command[match_obj.end() :]
                 moving_pointer += match_obj.end() - 1
 
@@ -34,8 +37,19 @@ def lex(command_str: str) -> List[Tuple[str, Any]]:
                 lex_sequence.append(lex)
                 break
 
-        if lex == ():
-            raise PiperSyntaxError("Unknown syntax at position " + str(moving_pointer))
+        if not matched_smth:
+            mistake_str, line_pos, char_pos = get_line_by_char_pos(
+                command_str, moving_pointer
+            )
+            mistake_str += (
+                "\n" + "~" * (char_pos - 1) + "^" * (len(mistake_str) - char_pos + 1)
+            )
+
+            raise PiperSyntaxError(
+                "Unknown syntax (line {}, char {}):\n{}".format(
+                    line_pos, char_pos, mistake_str
+                )
+            )
 
     if len(lex_sequence) == 0 or lex_sequence[-1][0] != "command-end":
         lex_sequence.append(("command-end", ";"))

@@ -8,7 +8,7 @@ from piper.vm import piper_exec
 
 
 def repl():
-    piper_exec(input("[Command]: "))
+    piper_exec(input("[Command]:: "))
 
 
 def main():

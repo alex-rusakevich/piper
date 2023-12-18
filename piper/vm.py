@@ -2,9 +2,12 @@ import inspect
 import re
 import sys
 
+from piper import __version_str__
 from piper.exception import *
 from piper.lexer import *
 from piper.parser import *
+
+GLOBAL_VARS = {"backslash": "\\", "encoding": "utf-8", "piper_version": __version_str__}
 
 
 # region Functions definitions
@@ -17,13 +20,10 @@ def piper_fn__in():
 
 
 def piper_fn__read_from(file_path: str):
-    return open(file_path, "r", encoding="utf-8").read()
+    return open(file_path, "r", encoding=GLOBAL_VARS["encoding"]).read()
 
 
 # endregion
-
-
-GLOBAL_VARS = {"backslash": "\\"}
 FUNCTIONS = {
     "out": piper_fn__out,
     "enter": lambda: input(),
