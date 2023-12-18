@@ -16,6 +16,10 @@ def piper_fn__in():
     return sys.stdin.read()
 
 
+def piper_fn__read_from(file_path: str):
+    return open(file_path, "r", encoding="utf-8").read()
+
+
 # endregion
 
 
@@ -33,7 +37,7 @@ FUNCTIONS = {
 }
 
 
-def call_fn(fn_name, input=None):
+def call_fn(fn_name, *args):
     fn = FUNCTIONS.get(fn_name, None)
 
     if fn is None:
@@ -41,13 +45,12 @@ def call_fn(fn_name, input=None):
 
     fn_args = inspect.signature(fn).parameters
 
-    if len(fn_args) == 0 and input is not None:
-        raise ArgumentError(f"Function {fn_name} takes no arguments")
+    if len(fn_args) != len(args):
+        raise ArgumentError(
+            f"Function {fn_name} takes {len(fn_args)}, but {len(args)} where given"
+        )
 
-    if len(fn_args) == 0 and input is None:
-        return fn()
-    else:
-        return fn(input)
+    return fn(*args)
 
 
 def unwrap_str(str_in: str) -> str:
@@ -84,7 +87,12 @@ def exec_ast(ast: List[List[Tuple[str, Any]]]):
             cmd_type, cmd_val = cmd
 
             if cmd_type == "function-name":
-                stored_result = call_fn(cmd_val, stored_result)
+                args = []
+
+                if stored_result is not None:
+                    args.append(stored_result)
+
+                stored_result = call_fn(cmd_val, *args)
             elif cmd_type == "variable-name":
                 if stored_result is None:  # Get variable
                     if cmd_val not in GLOBAL_VARS:

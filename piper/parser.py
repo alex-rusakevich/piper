@@ -24,6 +24,8 @@ def parse(lex_sequence: List[Tuple[str, Any]]) -> List[List[Tuple[str, Any]]]:
             pipeline.append((lex_type, lex_val))
 
         lex_sequence = lex_sequence[lex_count:]
-        ast.append(pipeline)
+
+        if pipeline != []:
+            ast.append(pipeline)
 
     return ast

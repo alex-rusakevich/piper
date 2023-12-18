@@ -8,8 +8,8 @@ LEX_TYPES = {
     "function-name": r"[a-zA-Z_]\w*",
     "variable-name": r"\$[a-zA-Z_]\w*",
     "piper": r"->",
-    "space": r"\s+",
     "command-end": r"[;\n]",
+    "space": r"\s+",
 }
 
 
