@@ -5,10 +5,12 @@ from piper.exception import PiperSyntaxError
 from piper.utils import get_line_by_char_pos
 
 LEX_TYPES = {
-    "string-literal": r"\".*\"",
-    "function-name": r"[a-zA-Z_]\w*",
-    "variable-name": r"\$[a-zA-Z_]\w*",
     "piper": r"->",
+    "string-literal": r"\"[^\"]*\"",
+    "float-literal": r"\d*\.\d+",
+    "integer-literal": r"\d+",
+    "function-name": r"[\w\-][\w\-]*",
+    "variable-name": r"\$[\w\-][\w\-]*",
     "command-end": r"[;\n]",
     "space": r"\s+",
 }

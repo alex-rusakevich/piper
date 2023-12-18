@@ -16,3 +16,7 @@ class FunctionDoesNotExistError(PiperError):
 
 class ArgumentError(PiperError):
     ...
+
+
+class NotReadyYet(PiperError):
+    ...

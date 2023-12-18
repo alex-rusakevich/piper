@@ -1,3 +1,2 @@
-"What's your name? " -> out
-enter -> $name;
+invite-enter "What's your name? " -> $name;
 "Hello, $name!" -> out;

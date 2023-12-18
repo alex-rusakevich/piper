@@ -1,5 +1,5 @@
-import inspect
 import re
+import string
 import sys
 
 from piper import __version_str__
@@ -7,12 +7,17 @@ from piper.exception import *
 from piper.lexer import *
 from piper.parser import *
 
-GLOBAL_VARS = {"backslash": "\\", "encoding": "utf-8", "piper_version": __version_str__}
+GLOBAL_VARS = {
+    "backslash": "\\",
+    "encoding": "utf-8",
+    "piper_version": __version_str__,
+    "punct": string.punctuation,
+}
 
 
 # region Functions definitions
-def piper_fn__out(input):
-    print(input, end="")
+def piper_fn__out(*args):
+    print(*args, end="")
 
 
 def piper_fn__in():
@@ -23,10 +28,22 @@ def piper_fn__read_from(file_path: str):
     return open(file_path, "r", encoding=GLOBAL_VARS["encoding"]).read()
 
 
+def piper_fn__write_to(file_path: str, data: str):
+    open(file_path, "w", encoding=GLOBAL_VARS["encoding"]).write(data)
+
+
+def piper_fn__replace(text_in, replace_what, replace_with):
+    return text_in.replace(replace_what, replace_with)
+
+
+def piper_fn__split(text_in, delimiter=None):
+    return "\n".join(text_in.split(delimiter))
+
+
 # endregion
 FUNCTIONS = {
     "out": piper_fn__out,
-    "enter": lambda: input(),
+    "invite-enter": lambda x="": input(x),
     "in": piper_fn__in,
     "reverse": lambda input: input[::-1],
     "lower": lambda input: input.lower(),
@@ -34,6 +51,10 @@ FUNCTIONS = {
     "strip": lambda input: input.strip(),
     "exit": lambda: sys.exit(0),
     "die": lambda: sys.exit(1),
+    "read-from": piper_fn__read_from,
+    "write-to": piper_fn__write_to,
+    "replace": piper_fn__replace,
+    "split": piper_fn__split,
 }
 
 
@@ -42,13 +63,6 @@ def call_fn(fn_name, *args):
 
     if fn is None:
         raise FunctionDoesNotExistError(f"Function does not exist: {fn_name}")
-
-    fn_args = inspect.signature(fn).parameters
-
-    if len(fn_args) != len(args):
-        raise ArgumentError(
-            f"Function {fn_name} takes {len(fn_args)}, but {len(args)} where given"
-        )
 
     return fn(*args)
 
@@ -84,13 +98,13 @@ def exec_ast(ast: List[List[Tuple[str, Any]]]):
         stored_result = None
 
         for cmd in pipeline:
-            cmd_type, cmd_val = cmd
+            cmd_type, cmd_val, args = cmd
+
+            args = list(a[1] for a in args)
 
             if cmd_type == "function-name":
-                args = []
-
                 if stored_result is not None:
-                    args.append(stored_result)
+                    args.insert(0, stored_result)
 
                 stored_result = call_fn(cmd_val, *args)
             elif cmd_type == "variable-name":

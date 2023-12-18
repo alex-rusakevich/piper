@@ -2,21 +2,25 @@
 
 import argparse
 import sys
+import time
 
 from piper import __author__, __version_str__
 from piper.vm import piper_exec
 
 
 def repl():
-    piper_exec(input("[Command]:: "))
+    start_time = time.time()
+    piper_exec(input("\n[Command]:: "))
+    print(f"\n[Done in {time.time() - start_time:5f} seconds]")
 
 
 def main():
     if len(sys.argv) == 1:  # repl mode
-        print(f"piper v{__version_str__}, created by {__author__}\n")
+        print(f"piper v{__version_str__}, created by {__author__}")
 
         while True:
             repl()
+
     else:  # args mode
         parser = argparse.ArgumentParser(
             description=f"piper language interpreter, created by {__author__}"
