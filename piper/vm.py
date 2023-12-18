@@ -1,7 +1,19 @@
 import inspect
 import re
+import sys
 
 from piper.exception import *
+from piper.lexer import *
+from piper.parser import *
+
+
+# region Functions definitions
+def piper_fn__out(input):
+    print(input, end="")
+
+
+# endregion
+
 
 GLOBAL_VARS = {"backslash": "\\"}
 FUNCTIONS = {
@@ -11,6 +23,8 @@ FUNCTIONS = {
     "lower": lambda input: input.lower(),
     "upper": lambda input: input.upper(),
     "strip": lambda input: input.strip(),
+    "exit": lambda: sys.exit(0),
+    "die": lambda: sys.exit(1),
 }
 
 
@@ -70,3 +84,7 @@ def exec_ast(ast):
                     cmd_val = unwrap_str(cmd_val)
 
                 stored_result = cmd_val
+
+
+def piper_exec(str_in: str):
+    return exec_ast(parse(lex(str_in)))

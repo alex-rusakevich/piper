@@ -2,6 +2,10 @@ class PiperError(BaseException):
     ...
 
 
+class PiperSyntaxError(PiperError):
+    ...
+
+
 class VarNotSetError(PiperError):
     ...
 
