@@ -27,6 +27,8 @@ def parse(lex_sequence: List[Tuple[str, Any]]) -> List[List[Tuple[str, Any]]]:
                 lex_val = lex_val[1:-1]
             elif lex_type == "variable-name":
                 lex_val = lex_val[1:]
+            elif lex_type == "arg-separator":
+                continue
 
             if not populating_func_args:
                 pipeline.append((lex_type, lex_val, args))

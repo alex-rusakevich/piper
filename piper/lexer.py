@@ -2,10 +2,10 @@ import re
 from typing import Any, List, Tuple
 
 from piper.exception import PiperSyntaxError
-from piper.utils import get_line_by_char_pos
 
 LEX_TYPES = {
     "piper": r"->",
+    "arg-separator": r"\,",
     "string-literal": r"\"[^\"]*\"",
     "float-literal": r"\d*\.\d+",
     "integer-literal": r"\d+",
@@ -33,25 +33,31 @@ def lex(command_str: str) -> List[Tuple[str, Any]]:
 
                 lex = (k, match_obj.group(0))
 
-                if k == "space":
+                if k in "space":
                     break
+
+                if lex[0] == "arg-separator" and (
+                    len(lex_sequence) < 1
+                    or not lex_sequence[-1][0].endswith("-literal")
+                ):
+                    raise PiperSyntaxError(
+                        "Unneeded comma separator", command_str, moving_pointer
+                    )
+
+                if (
+                    len(lex_sequence) >= 1 and lex_sequence[-1][0].endswith("-literal")
+                ) and lex[0] not in ("piper", "arg-separator", "command-end"):
+                    print(lex)
+                    print(lex_sequence)
+                    raise PiperSyntaxError(
+                        "Piper enumerations must use comma", command_str, moving_pointer
+                    )
 
                 lex_sequence.append(lex)
                 break
 
         if not matched_smth:
-            mistake_str, line_pos, char_pos = get_line_by_char_pos(
-                command_str, moving_pointer
-            )
-            mistake_str += (
-                "\n" + "~" * (char_pos - 1) + "^" * (len(mistake_str) - char_pos + 1)
-            )
-
-            raise PiperSyntaxError(
-                "Unknown syntax (line {}, char {}):\n{}".format(
-                    line_pos, char_pos, mistake_str
-                )
-            )
+            raise PiperSyntaxError("Unknown syntax", command_str, moving_pointer)
 
     if len(lex_sequence) == 0 or lex_sequence[-1][0] != "command-end":
         lex_sequence.append(("command-end", ";"))

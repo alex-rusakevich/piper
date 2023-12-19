@@ -9,9 +9,11 @@ from piper.vm import piper_exec
 
 
 def repl():
+    cmd = input("\n[Command]:: ")
+
     start_time = time.time()
-    piper_exec(input("\n[Command]:: "))
-    print(f"\n[Done in {time.time() - start_time:5f} seconds]")
+    piper_exec(cmd)
+    print(f"\n[Done in {time.time() - start_time:7f} seconds]")
 
 
 def main():
